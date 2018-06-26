@@ -40,6 +40,7 @@ type Tracker interface {
 	// String provides the representation of the managed span
 	String() string
 
+<<<<<<< HEAD
 	//DecorateTransactor provides a strategy to inspect transactor arguments and outputs
 	DecorateTransactor(Transactor, ...SpanForwardingOptions) Transactor
 
@@ -53,6 +54,17 @@ type Tracker interface {
 //(i.e if body is read)
 //An use case for this is extracting WRP spans into golang money spans
 type SpanForwardingOptions func(*http.Response) []string
+=======
+	DecorateTransactor(Transactor, ...SpanForwardingOptions) Transactor
+
+	Spans() []string
+}
+
+//SpanForwardingOptions allows decoding of generic span types into that of golang money
+//Today, spans should be extracted from an HTTP header and returned as a list of string-encode
+//golang-money spans
+type SpanForwardingOptions func(http.Header) []string
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 
 //HTTPTracker is the management type for child spans
 type HTTPTracker struct {
@@ -61,7 +73,10 @@ type HTTPTracker struct {
 	span Span
 
 	//spans contains the string-encoded value of all spans created under this tracker
+<<<<<<< HEAD
 	//should be modifiable by multiple goroutines
+=======
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 	spans []string
 
 	done bool //indicates whether the span associated with this tracker is finished
@@ -91,7 +106,11 @@ func (t *HTTPTracker) DecorateTransactor(transactor Transactor, options ...SpanF
 
 			//options allow converting different span types into money-compatible ones
 			for _, o := range options {
+<<<<<<< HEAD
 				for _, span := range o(resp) {
+=======
+				for _, span := range o(resp.Header) {
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 					t.spans = append(t.spans, span)
 				}
 			}
@@ -108,12 +127,21 @@ func (t *HTTPTracker) DecorateTransactor(transactor Transactor, options ...SpanF
 func (t *HTTPTracker) Start(ctx context.Context, s Span) (tracker Tracker) {
 	t.m.RLock()
 	defer t.m.RUnlock()
+<<<<<<< HEAD
 
 	if !t.done {
 		s.TC = SubTrace(t.span.TC)
 		tracker = t.Spanner.Start(ctx, s)
 	}
 
+=======
+
+	if !t.done {
+		s.TC = SubTrace(t.span.TC)
+		tracker = t.Spanner.Start(ctx, s)
+	}
+
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 	return
 }
 
@@ -138,11 +166,16 @@ func (t *HTTPTracker) Finish(r Result) {
 }
 
 //String returns the string representation of the span associated with this
+<<<<<<< HEAD
 //HTTPTrackertracker once such span has finished, zero value otherwise
+=======
+//HTTPTrackertracker
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 func (t *HTTPTracker) String() (v string) {
 	t.m.RLock()
 	defer t.m.RUnlock()
 
+<<<<<<< HEAD
 	if t.done {
 		v = t.span.String()
 	}
@@ -152,15 +185,26 @@ func (t *HTTPTracker) String() (v string) {
 
 //Spans returns the list of string-encoded spans under this tracker
 //once the main span under the tracker is finished, zero value otherwise
+=======
+	v = t.span.String()
+	return
+}
+
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 func (t *HTTPTracker) Spans() (spans []string) {
 	t.m.RLock()
 	defer t.m.RUnlock()
 
+<<<<<<< HEAD
 	if t.done {
 		spans = make([]string, len(t.spans))
 		copy(spans, t.spans)
 	}
 
+=======
+	spans = make([]string, len(t.spans))
+	copy(spans, t.spans)
+>>>>>>> e51d56b... Sketch for client decoration and synchronization logic
 	return
 }
 
